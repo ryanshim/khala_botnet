@@ -1,0 +1,112 @@
+
+
+
+
+CSUF Botnet Team                                           R. Kretschmar
+Internet-Draft                                                      CSUF
+Expires: April 16, 2019                                 October 13, 2018
+
+
+                        A Simple Botnet Protocol
+                         draft-simple-botnet-01
+
+Abstract
+
+   This is the RFC for a simple protocol that our botnet is going to
+   use.  The two main sections will be the protocol for the single
+   Command and Control (C&C) server, and then the protocol that the
+   individual "client"-side bots will operate with.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on April 16, 2019.
+
+Copyright Notice
+
+   Copyright (c) 2018 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+
+
+Kretschmar               Expires April 16, 2019                 [Page 1]
+
+Internet-Draft          A Simple Botnet Protocol            October 2018
+
+
+1.  Introduction
+
+   To help showcase our presentation of "The Anatomy of a Botnet", we
+   must first create a botnet including a working protocol that the will
+   be a unified language that our Command and Control server and our
+   client bots can talk to each other with.  This is important as any
+   protocol is to achieve a proof of concept that will be the
+   underpinning of this project.  TODO: Add more here.
+
+2.  Command and Control Server Protocol
+
+   This is where I will talk about the Command and Control server as a
+   whole.
+
+2.1.  Infection Handling
+
+   The first logical thing a C&C server should do is infect a new system
+   -- effectively enrolling it into our botnet.  Infection handling can
+   happen many different ways depending on what the creator of the
+   botnet wants to accpomlish.  Our system, since simple, will try to
+   infect a system by copying over the bot code to the victims machine.
+   It will then wait one minute (60 seconds) for a HELO_C reply.  TODO:
+   Flesh out.
+
+3.  Bot Client Protocol
+
+   This is where I will talk about the client-side bots as a whole.
+
+3.1.  The HELO_C Message
+
+   The bot will send the HELO_C message to the C&C server when it is
+   done infecting a victim's computer and ready to take commands.  This
+   will have the server put the IP address in the master list of active
+   bots that the server currently knows about.  TODO: Flesh out more.
+
+Author's Address
+
+   Robert J. Kretschmar III
+   California State University, Fullerton
+
+   Email: armersuender@csu.fullerton.edu
+
+
+
+
+
+
+
+
+
+
+Kretschmar               Expires April 16, 2019                 [Page 2]
