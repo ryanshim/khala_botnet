@@ -2,6 +2,8 @@
 # The cli class has methods that seem to mix w/ those that should be separated.
 # For now, I will assume that this script is running on the cnc server.
 import argparse
+import getpass
+from pexpect import pxssh
 
 class CommandlineUserInterface:
     def __init__(self):
@@ -34,7 +36,28 @@ class CommandlineUserInterface:
 
     # connect to the controlling server
     def connect(self):
-        pass
+        try:
+            s = pxssh.pxssh()
+            hostname = self.args.conn
+            username = input("Enter username: ")
+            password = getpass.getpass("Enter password: ")
+            s.login(hostname, username, password)
+            print(s.before.decode('UTF-8'))
+
+            command = input("\n$ ")
+
+            while command != "exit":
+                s.sendline(command)
+                s.prompt()
+                print(s.before.decode('UTF-8'))
+                command = input("$ ")
+
+            s.logout()  # Disconnect from client 
+            print(s.before.decode('UTF-8'))
+
+        except pxssh.ExceptionPxssh as e:
+            print("pxssh failed on login")
+            print(e)
 
     # disconnect to the controlling server
     def disconnect(self):
@@ -63,3 +86,7 @@ class CommandlineUserInterface:
 
 cli = CommandlineUserInterface()
 print(cli.args)
+
+if cli.args.conn:
+    cli.connect()
+
